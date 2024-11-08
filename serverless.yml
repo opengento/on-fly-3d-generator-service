@@ -1,0 +1,38 @@
+# ./serverless.yml
+service: opengento-on-fly-3d-generator
+
+plugins:
+  - serverless-esbuild # used for compiling/packaging the Typescript code
+  - serverless-offline # used for local execution
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: eu-west-1
+  stage: ${opt:stage}
+  timeout: 30 # repository wide Lambda timeout
+  environment: # repository wide Lambda env variables
+    STAGE: ${self:provider.stage}
+
+meshy:
+  apiKey: msy_1OpWrYbiyZUvRbdumXwwIENIOahevTOq6qYj
+
+functions:
+  # Serverless Framework specific syntax
+  buildImage:
+    handler: ./src/image-builder.handler
+    events:
+      - httpApi:
+          path: /api/buildImage
+          method: POST
+    environment:
+      API_KEY: ${self:meshy.apiKey}
+
+  getImage:
+    handler: ./src/image-getter.handler
+    events:
+      - httpApi:
+          path: /api/getImage
+          method: GET
+    environment:
+      API_KEY: ${self:meshy.apiKey}
