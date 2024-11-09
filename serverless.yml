@@ -1,4 +1,5 @@
 # ./serverless.yml
+useDotenv: true
 service: opengento-on-fly-3d-generator
 
 plugins:
@@ -9,10 +10,6 @@ provider:
   name: aws
   runtime: nodejs18.x
 
-custom:
-  meshy:
-    apiKey: msy_1OpWrYbiyZUvRbdumXwwIENIOahevTOq6qYj
-
 functions:
   # Serverless Framework specific syntax
   sendImage:
@@ -22,7 +19,7 @@ functions:
           path: /api/sendImage
           method: POST
     environment:
-      API_KEY: ${self:custom.meshy.apiKey}
+      API_KEY: ${env:MESHY_API_KEY}
 
   getImage:
     handler: handler.getImage
@@ -31,4 +28,4 @@ functions:
           path: /api/getImage
           method: GET
     environment:
-      API_KEY: ${self:custom.meshy.apiKey}
+      API_KEY: ${env:MESHY_API_KEY}
