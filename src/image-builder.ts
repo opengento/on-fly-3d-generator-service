@@ -1,9 +1,12 @@
-export const handler = async (
-  event: any
-): Promise<{ statusCode: number; body: string }> => {
-  // Get the image URL from the JSON body
-  const imageUrl =
-    event.queryStringParameters?.image_url || JSON.parse(event.body)?.image_url;
+import { APIGatewayProxyResult, APIGatewayEvent, Handler } from "aws-lambda";
+
+export const sendImage: Handler = async (
+  event: APIGatewayEvent
+): Promise<APIGatewayProxyResult> => {
+  let imageUrl = "";
+  if (event.body) {
+    imageUrl = JSON.parse(event.body).image_url;
+  }
   try {
     // Call the external API using fetch
     const response = await fetch("https://api.meshy.ai/v1/image-to-3d", {

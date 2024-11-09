@@ -7,32 +7,28 @@ plugins:
 
 provider:
   name: aws
-  runtime: nodejs20.x
-  region: eu-west-1
-  stage: ${opt:stage}
-  timeout: 30 # repository wide Lambda timeout
-  environment: # repository wide Lambda env variables
-    STAGE: ${self:provider.stage}
+  runtime: nodejs18.x
 
-meshy:
-  apiKey: msy_1OpWrYbiyZUvRbdumXwwIENIOahevTOq6qYj
+custom:
+  meshy:
+    apiKey: msy_1OpWrYbiyZUvRbdumXwwIENIOahevTOq6qYj
 
 functions:
   # Serverless Framework specific syntax
-  buildImage:
-    handler: ./src/image-builder.handler
+  sendImage:
+    handler: handler.sendImage
     events:
       - httpApi:
-          path: /api/buildImage
+          path: /api/sendImage
           method: POST
     environment:
-      API_KEY: ${self:meshy.apiKey}
+      API_KEY: ${self:custom.meshy.apiKey}
 
   getImage:
-    handler: ./src/image-getter.handler
+    handler: handler.getImage
     events:
       - httpApi:
           path: /api/getImage
           method: GET
     environment:
-      API_KEY: ${self:meshy.apiKey}
+      API_KEY: ${self:custom.meshy.apiKey}

@@ -1,9 +1,27 @@
-export const handler = async (
-  event: any
-): Promise<{ statusCode: number; body: string }> => {
+interface ModelInterface {
+  obj: string;
+  fbx: string;
+  glb: string;
+  usdz: string;
+}
+
+interface MeshyImage {
+  id: string;
+  status: string;
+  model_urls: ModelInterface;
+}
+
+import { APIGatewayProxyResult, APIGatewayEvent, Handler } from "aws-lambda";
+
+export const getImage: Handler = async (
+  event: APIGatewayEvent
+): Promise<APIGatewayProxyResult> => {
   // Get the image ID from the query string
-  const imageId =
-    event.queryStringParameters?.image_url || JSON.parse(event.body)?.image_url;
+  const imageId = event.queryStringParameters?.image_id;
+  const STATUS_CODES = {
+    processing: "PROCESSING",
+    success: "SUCCEEDED",
+  };
   try {
     // Call the external API using fetch
     const response = await fetch(
@@ -22,7 +40,16 @@ export const handler = async (
     }
 
     // Parse the JSON response
-    const data = await response.json();
+    const data: MeshyImage = (await response.json()) as MeshyImage;
+    if (data.status === STATUS_CODES.processing) {
+      return {
+        statusCode: 204,
+        body: JSON.stringify({
+          message: "Image is still processing",
+          data: data,
+        }),
+      };
+    }
 
     // Return the data from the API call
     return {
